@@ -10,8 +10,8 @@
 CLI=`which tw-cli`
 CONTROLLER=$1
 HDD=$2
-WARN=45
-CRIT=50
+WARN=$3
+CRIT=$4
 
 function usage() {
         echo "./check_3ware_hdd_temp <controller> <disk> <warn> <crit>"
