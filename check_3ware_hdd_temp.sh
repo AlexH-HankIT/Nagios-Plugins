@@ -2,7 +2,10 @@
 #
 # Author: MrCrankHank
 #
-
+#
+# User nagios needs permission to execute the tw-cli binary. Add this to your /etc/sudoers:
+# nagios ALL=NOPASSWD: /usr/sbin/tw-cli
+#
 
 CLI=`which tw-cli`
 CONTROLLER=$1
