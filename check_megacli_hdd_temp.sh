@@ -25,13 +25,13 @@ fi
 
 TEMP=$(sudo $megacli PDInfo -PhysDrv [64:$HDD] -aAll | grep 'Drive Temperature' | grep -o '[0-9]\{2\}C' | tr -d 'C')
 if [ $TEMP -lt $WARN ]; then
-        echo "OK - Temperature is $TEMP"
+        echo "OK - Temperature is ${TEMP}C"
         exit 0
 elif [ $TEMP -gt $CRIT ]; then
-        echo "CRITICAL - Temperature is $TEMP"
+        echo "CRITICAL - Temperature is ${TEMP}C"
         exit 2
 elif [ $TEMP -ge $WARN ]; then
-        echo "WARNING - Temperature is $TEMP"
+        echo "WARNING - Temperature is ${TEMP}C"
         exit 1
 else
         echo "UNKNOWN - Temperature is unknown"
