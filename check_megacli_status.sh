@@ -1,20 +1,38 @@
 #!/bin/bash
-#User nagios executes the megacli binary, add this to your /etc/sudoers file
-#nagios ALL=NOPASSWD:/opt/MegaRAID/MegaCli/MegaCli64
+#
+# Author: MrCrankHank
+#
+#
+# User nagios executes the megacli binary, add this to your /etc/sudoers file
+# nagios ALL=NOPASSWD:/opt/MegaRAID/MegaCli/MegaCli64
+#
+#
 
+# Path to your megacli binary
+megacli="/opt/MegaRAID/MegaCli/MegaCli64"
+VD=$1
+CONTROLLER=$2
 
-megacli="sudo /opt/MegaRAID/MegaCli/MegaCli64"
+function usage() {
+        echo "./check_megacli_status.sh <virtualdrive> <controller>"
+        exit 1
+}
 
-name=$($megacli -LDInfo -L$1 -aALL | grep -e "^Name" | tr -d ':' | tr -d ' ' | sed -e 's/Name//g')
-state=$($megacli -LDInfo -L$1 -aALL | grep -e "^State" | tr -d ':' | tr -d ' ' | sed -e 's/State//g')
-size=$($megacli -LDInfo -L$1 -aALL | grep -e "^Size")
-
-if [ "$state" == "Optimal" ]
-then
-	nagioscode=0
-else
-	nagioscode=2
+if [[ -z $1 || -z $2 ]]; then
+        usage
 fi
 
-echo "${name}: $state"
-exit $nagioscode
+state=$(sudo $megacli -LDInfo -L$VD -a$CONTROLLER | grep -e "^State" | tr -d ':' | tr -d ' ' | sed -e 's/State//g')
+
+if [ -z $state ]; then
+        echo "Unknown - Could not get raid status on controller $CONTROLLER"
+        exit 3
+fi
+
+if [ "$state" == "Optimal" ]; then
+        echo "OK - Raid status is $state on controller $CONTROLLER"
+        exit 0
+else
+        echo "CRITICAL - Raid status is $state on controller $CONTROLLER"
+        exit 2
+fi
