@@ -1,38 +1,39 @@
 #!/bin/bash
-#User nagios executes the megacli binary, add this to your /etc/sudoers file
-#nagios ALL=NOPASSWD:/opt/MegaRAID/MegaCli/MegaCli64
+#
+# Author: MrCrankHank
+#
+#
+# User nagios executes the megacli binary, add this to your /etc/sudoers file
+# nagios ALL=NOPASSWD:/opt/MegaRAID/MegaCli/MegaCli64
+#
+#
 
-megacli="sudo /opt/MegaRAID/MegaCli/MegaCli64"
-temp_warning=50
-temp_critical=60
+# Path to your megacli binary
+megacli='/opt/MegaRAID/MegaCli/MegaCli64'
+HDD=$1
+WARN=$2
+CRIT=$3
 
-if [ $1 == slots ]
-then
-        $megacli -PDList -aALL | grep -e "^Slot Number: "
+function usage() {
+        echo "./check_megacli_hdd_temp.sh <disk> <warn> <crit>"
+        exit 1
+}
+
+if [[ -z $1 || -z $2 || -z $3 ]]; then
+        usage
+fi
+
+TEMP=$(sudo $megacli PDInfo -PhysDrv [64:$HDD] -aAll | grep 'Drive Temperature' | grep -o '[0-9]\{2\}C' | tr -d 'C')
+if [ $TEMP -lt $WARN ]; then
+        echo "OK - Temperature is $TEMP"
         exit 0
-elif [ $1 == temp ]
-then
-        output=$($megacli PDInfo -PhysDrv [64:$2] -aAll | grep -e '^Drive Temperature')
-        temp=$(echo $output | grep -o '...\C' | tr -d ':'| tr -d 'C')
-        cat "$file1" | grep -o '...\C' | tr -d ':'| tr -d 'C' &>> $file2
-        if [ "$temp" -gt "$temp_warning" ]
-        then
-                nagioscode=1
-        elif [ "$temp" -gt "$temp_critical" ]
-        then
-                nagioscode=2
-        elif [ "$temp" -lt "$temp_warning" ]
-        then
-                nagioscode=0
-        else
-                nagioscode=3
-        fi
-        output=$(echo $output | grep -o '...\C' | tr -d ':')
-        echo "Drive $2: $output"
-        exit $nagioscode
-elif [ $1 == type ]
-then
-        output=$($megacli PDInfo -PhysDrv [64:$2] -aAll | grep -e '^Inquiry Data:')
-        output=$(echo $output | tr -d '^Inquiry Data:')
-        echo "Drive $2: $output"
+elif [ $TEMP -gt $CRIT ]; then
+        echo "CRITICAL - Temperature is $TEMP"
+        exit 2
+elif [ $TEMP -ge $WARN ]; then
+        echo "WARNING - Temperature is $TEMP"
+        exit 1
+else
+        echo "UNKNOWN - Temperature is unknown"
+        exit 3
 fi
