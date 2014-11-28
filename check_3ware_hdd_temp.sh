@@ -26,13 +26,13 @@ fi
 TEMP=$($sudo $CLI /c$CONTROLLER/p$HDD show temperature | grep -o '[0-9]\{2\}')
 
 if [ $TEMP -lt $WARN ]; then
-        echo "OK - Temperature of drive $HDD is $TEMP"
+        echo "OK - Temperature of drive $HDD is ${TEMP}C"
         exit 0
 elif [ $TEMP -gt $CRIT ]; then
-        echo "CRITICAL - Temperature of drive $HDD is $TEMP"
+        echo "CRITICAL - Temperature of drive $HDD is ${TEMP}C"
         exit 2
 elif [ $TEMP -ge $WARN ]; then
-        echo "WARNING - Temperature of drive $HDD is $TEMP"
+        echo "WARNING - Temperature of drive $HDD is ${TEMP}C"
         exit 1
 else
         echo "UNKNOWN - Temperature is unknown"
