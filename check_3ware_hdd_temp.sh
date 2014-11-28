@@ -8,6 +8,7 @@
 #
 
 CLI=`which tw-cli`
+sudo=`which sudo`
 CONTROLLER=$1
 HDD=$2
 WARN=$3
@@ -22,7 +23,7 @@ if [[ -z $1 || -z $2 || -z $3 || -z $4 ]]; then
         usage
 fi
 
-TEMP=$($CLI /c$CONTROLLER/p$HDD show temperature | grep -o '[0-9]\{2\}')
+TEMP=$($sudo $CLI /c$CONTROLLER/p$HDD show temperature | grep -o '[0-9]\{2\}')
 
 if [ $TEMP -lt $WARN ]; then
         echo "OK - Temperature is $TEMP"
