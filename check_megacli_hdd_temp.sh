@@ -1,6 +1,6 @@
 #!/bin/bash
 #User nagios executes the megacli binary, add this to your /etc/sudoers file
-#nagios ALL=(ALL) NOPASSWD:/opt/MegaRAID/MegaCli/MegaCli64
+#nagios ALL=NOPASSWD:/opt/MegaRAID/MegaCli/MegaCli64
 
 megacli="sudo /opt/MegaRAID/MegaCli/MegaCli64"
 temp_warning=50
