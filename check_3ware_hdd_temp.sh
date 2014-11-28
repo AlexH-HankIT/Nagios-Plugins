@@ -29,10 +29,10 @@ if [ $TEMP -lt $WARN ]; then
         echo "OK - Temperature is $TEMP"
         exit 0
 elif [ $TEMP -gt $CRIT ]; then
-        echo "CRITICAL - Temperature is $TEMP"
+        echo "CRITICAL - Temperature of drive $HDD is $TEMP"
         exit 2
 elif [ $TEMP -ge $WARN ]; then
-        echo "WARNING - Temperature is $TEMP"
+        echo "WARNING - Temperature of drive $HDD is $TEMP"
         exit 1
 else
         echo "UNKNOWN - Temperature is unknown"
