@@ -21,7 +21,7 @@ function usage() {
         echo
         echo "  3. Create a config for logrotation:"
         echo "          /etc/logrotate.d/fetchmail"
-        echo "          /var/log/fetchmail.log {"
+        echo "          /var/log/fetchmail/fetchmail.log {"
         echo "          weekly"
         echo "          create 0644 fetchmail nagios"
         echo "          rotate 4"
