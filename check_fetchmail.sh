@@ -3,7 +3,6 @@
 #
 # Author: MrCrankHank
 #
-# Add default location for log file under /var/log/fetchmail/fetchmail.log
 
 function usage() {
         echo "./check_fetchmail.sh <LOG_FILE>"
