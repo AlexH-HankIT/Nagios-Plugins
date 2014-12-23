@@ -105,7 +105,7 @@ case $1 in
 							echo "OK - No rules in chain nat"
 							exit 0
 						else
-							echo "Critical - $RULES_NAT rules in chain filter"
+							echo "Critical - $RULES_NAT rules in chain nat"
 							exit 2
 						fi
 					fi
