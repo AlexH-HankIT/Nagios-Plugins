@@ -57,31 +57,33 @@ if ($version -eq 2012) {
 	
 } elseif ($version -eq 2008) {
 	$var = iscsicli SessionList
-	$lines = $var | Where-Object {$_ -notmatch "(\s?)+'"} | Measure-Object
-	$lines = write-output $lines.count
+	$var = $var | Select-String -Pattern Insgesamt
+	$var = $var -replace '\s',''
+	$var = $var -replace 'Insgesamt',''
+	$var = $var -replace 'Sitzungen',''
 	
-	$lines = $lines - 5
-	$count = 30 * $targets + 1
-	$connected = ($lines -1) / 30
-	
-	if ($lines -eq $count) {
-		if ($connected -eq 1) {
-			echo "OK - $connected target is connected"
+	if ($var -eq 1) {
+		if ($var -eq $targets) {
+			echo "OK - $var target is connected"
+			$nagios_status = 0
 		} else {
-			echo "OK - $connected of $targets targets are connected"
-		}	
-		$nagios_status = 0
-	} else {
-		if ($connected -eq 0) {
-			echo "Critical - No target is connected"
-		} elseif ($connected -eq 1) {
-			echo "Critical - $connected of $targets is connected"
-		} else {
-			echo "Critical - $connected of $targets targets are connected"
+			echo "Critical - $var targets of $targets are connected"
+			$nagios_status = 2
 		}
-		$nagios_status = 2
+	} elseif ($var -eq $targets) {
+			echo "OK - $var targets are connected"
+			$nagios_status = 0
+	} else {
+		if ($var -eq 0) {
+			echo "Critical - No targets are connected"
+			$nagios_status = 2
+		} else {
+			echo "Critical - $var targets of $targets are connected"
+			$nagios_status = 2
+		}
+			
 	}
-
+	
 	$host.SetShouldExit($nagios_status)
 }
 
