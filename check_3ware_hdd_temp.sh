@@ -15,7 +15,7 @@ WARN=$3
 CRIT=$4
 
 function usage() {
-        echo "./check_3ware_hdd_temp <controller> <disk> <warn> <crit>"
+        echo "./check_3ware_hdd_temp.sh <controller> <disk> <warn> <crit>"
         exit 1
 }
 
