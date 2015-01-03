@@ -30,10 +30,13 @@ sub print_port_status {
         my $port = "$_[1]";
         if ($result eq 1) {
                 print "OK - Port $port is up\n"
+                exit 0
         } elsif ($result eq 2) {
                 print "Critical - Port $port is down\n"
+                exit 2
         } else {
                 print "Unknown - Can't get status of port $port\n"
+                exit 3
         }
 }
 
