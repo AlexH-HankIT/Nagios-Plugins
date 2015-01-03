@@ -12,6 +12,9 @@ function usage() {
         echo
         echo "The user nagios executes the pvesm binary via sudo. For this to work you have to modify your /etc/sudoers. E.g:"
         echo "  'nagios ALL=NOPASSWD: /usr/sbin/pvesm list *'"
+        echo 
+        echo "This script works only for kvm!"
+        echo
         exit 1
 }
 
