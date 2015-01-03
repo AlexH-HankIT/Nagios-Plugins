@@ -10,18 +10,13 @@ sub check_oid {
         my $host = "$_[0]";
         my $community = "$_[1]";
         my $desc = "$_[2]";
-
         my ($session, $error) = Net::SNMP->session(
                                 Hostname => "$host",
                                 Community => "$community");
         die "session error: $error" unless ($session);
-
         my $result = $session->get_request("$desc");
-
         die "request error: ".$session->error unless (defined $result);
-
         $session->close;
-
         return $result->{"$desc"};
 }
 
@@ -41,7 +36,6 @@ sub print_port_status {
 }
 
 my $usage = " ./check_hp_2530_port.pl -h <host|ip> -c <community> -p <port>";
-
 my %opts;
 getopts("h:c:p:", \%opts) or die "$usage\n";
 die "$usage\n" unless $opts{h};
