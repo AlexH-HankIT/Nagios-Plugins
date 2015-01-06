@@ -42,7 +42,7 @@ else
 fi
 
 if ! [ -f $LOG ]; then
-        echo "Unknown - could not open the file $LOG"
+        echo "Unknown - Could not open the file $LOG"
         echo
         usage
         exit 3
