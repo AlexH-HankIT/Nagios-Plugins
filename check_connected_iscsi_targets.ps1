@@ -15,8 +15,10 @@
 # Values are 2008 or 2012
 #
 # Windows Server 2012 has a better iscsi cmdlet. If you set version to 2012 the new cmdlet will be used. 
-# Version 2008 will use the old one, which will probably also work on 2012 and above. But the implementation in this script is ugly. 
-# So I recommended the new method if running 2012 or above.
+# Version 2008 will use the old one, which will probably also work on 2012 and above. But the implementation in this script is ugly, 
+# because it works only in german. If you want to use this on an english 2008 server, please let me know.
+#
+# However, i recommended the new method if running 2012 or above.
 #
 # Since this script uses arguments, you need to enable them in your nsclient.ini
 # Something like this should do the job:
