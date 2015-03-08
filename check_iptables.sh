@@ -6,6 +6,7 @@
 
 # Important bins
 IPT=`which iptables`
+IPT6=`which ip6tables`
 IPSET=`which ipset`
 SUDO=`which sudo`
 
@@ -36,6 +37,9 @@ if [ -z $1 ]; then
 	echo
 	echo "			Output:"
 	echo "			Critical - 20 rules in chain filter"
+	echo
+	echo "		IP6Tables:"
+	echo "			Works exactly like IPTables"
 	echo
 	echo "		IPSet:"
 	echo "			./check_iptables ipset <ipset>"
@@ -122,6 +126,70 @@ case $1 in
 
 			mangle)
 				COUNT_MANGLE=$($SUDO $IPT -t mangle -L -n | wc -l)
+
+				IPT_MANGLE_EMPTY=14
+				if ! [ -z $3 ]; then
+					((IPT_MANGLE_EMPTY=${3}*3+$IPT_MANGLE_EMPTY))
+				fi
+
+				((RULES_MANGLE=${COUNT_MANGLE}-${IPT_MANGLE_EMPTY}))
+
+				if [ -z $4 ]; then
+					if [ $4 == "emptyok" ]; then
+						if [ $COUNT_MANGLE -le $IPT_MANGLE_EMPTY ]; then
+							echo "OK - No rules in chain mangle"
+							exit 0
+						else
+							echo "Critical - $RULES_MANGLE rules in chain mangle"
+							exit 2
+						fi
+					fi
+				fi
+
+				if [ $COUNT_MANGLE -le $IPT_MANGLE_EMPTY ]; then
+					echo "Critical - No rules in chain mangle"
+					exit 2
+				else
+					echo "OK - $RULES_MANGLE rules in chain mangle"
+					exit 0
+				fi
+			;;
+		esac
+	;;
+	ip6tables)
+		case $2 in
+			filter)
+				COUNT_FILTER=$($SUDO $IPT6 -L -n | wc -l)
+
+				IPT_FILTER_EMPTY=8
+                                if ! [ -z $3 ]; then
+                                        ((IPT_FILTER_EMPTY=${3}*3+$IPT_FILTER_EMPTY))
+                                fi
+
+				((RULES_FILTER=${COUNT_FILTER}-${IPT_FILTER_EMPTY}))
+
+				if ! [ -z $4 ]; then
+					if [ $4 == "emptyok" ]; then
+						if [ $COUNT_FILTER -le $IPT_FILTER_EMPTY ]; then
+							echo "OK - No rules in chain filter"
+							exit 0
+						else
+							echo "Critical - $RULES_FILTER rules in chain filter"
+							exit 2
+						fi
+					fi
+				fi
+
+				if [ $COUNT_FILTER -le $IPT_FILTER_EMPTY ]; then
+					echo "Critical - No rules in chain filter"
+					exit 2
+				else
+					echo "OK - $RULES_FILTER rules in chain filter"
+					exit 0
+				fi
+			;;
+			mangle)
+				COUNT_MANGLE=$($SUDO $IPT6 -t mangle -L -n | wc -l)
 
 				IPT_MANGLE_EMPTY=14
 				if ! [ -z $3 ]; then
