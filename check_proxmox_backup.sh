@@ -21,10 +21,10 @@ if [[ -z $1 || -z $2 || -z $3 ]]; then
 fi
 
 # binaries
-PVESM=sudo /usr/sbin/pvesm
-PVECTL=sudo /usr/bin/pvectl
-LXCLS=sudo /usr/bin/lxc-ls
-QM=sudo /usr/sbin/qm
+PVESM="sudo /usr/sbin/pvesm"
+PVECTL="sudo /usr/bin/pvectl"
+LXCLS="sudo /usr/bin/lxc-ls"
+QM="sudo /usr/sbin/qm"
 
 # Temp file for pvesm output
 LIST=/tmp/pvesmlist
