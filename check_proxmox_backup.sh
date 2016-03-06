@@ -11,7 +11,7 @@ function usage() {
         echo "MAX_OLD_DAYS:     The script will trigger a critical alert if the backup is older then the days specified in this var."
         echo
         echo "The user nagios executes the pvesm binary via sudo. For this to work you have to modify your /etc/sudoers. E.g:"
-        echo "  'nagios ALL=NOPASSWD: /usr/sbin/pvesm list *'"
+        echo "  'nagios ALL=NOPASSWD: /usr/sbin/pvesm list *, /usr/bin/pvectl list *, /usr/bin/lxc-ls, /usr/sbin/qm list *'"
         echo
         exit 1
 }
@@ -21,9 +21,10 @@ if [[ -z $1 || -z $2 || -z $3 ]]; then
 fi
 
 # binaries
-PVESM=/usr/sbin/pvesm
-PVECTL=/usr/bin/pvectl
-LXCLS=/usr/bin/lxc-ls
+PVESM=sudo /usr/sbin/pvesm
+PVECTL=sudo /usr/bin/pvectl
+LXCLS=sudo /usr/bin/lxc-ls
+QM=sudo /usr/sbin/qm
 
 # Temp file for pvesm output
 LIST=/tmp/pvesmlist
@@ -37,14 +38,15 @@ ID=$2
 # The script triggers an critical alert if the last backup is older than $MAX_OLD_DAYS days
 MAX_OLD_DAYS=$3
 
-# Check if KVM or LXC
+# Check for type
+# Note: Proxmox dropt openvz support in 4.0
 #KVM
-if sudo /usr/sbin/qm list |grep $ID > /dev/null 2>&1 ; then
+if $QM list |grep $ID > /dev/null 2>&1 ; then
  TYPE="qemu"
 fi
 #OPENVZ
 if [[ -f $PVECTL ]] ; then
- if sudo $PVECTL list |grep $ID > /dev/null 2>&1 ; then
+ if $PVECTL list |grep $ID > /dev/null 2>&1 ; then
    TYPE="openvz"
  fi
 fi
@@ -55,7 +57,7 @@ if [[ -f $LXCLS ]] ; then
  fi
 fi
 
-sudo $PVESM list $BACKUP_STORAGE | grep "vzdump-$TYPE-$ID" > $LIST
+$PVESM list $BACKUP_STORAGE | grep "vzdump-$TYPE-$ID" > $LIST
 COUNT=$(wc -l < $LIST)
 
 if [ $COUNT -eq 0 ]; then
