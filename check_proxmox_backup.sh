@@ -38,26 +38,49 @@ ID=$2
 # The script triggers an critical alert if the last backup is older than $MAX_OLD_DAYS days
 MAX_OLD_DAYS=$3
 
+# Check that vmid has at least 3 digits
+len=$(echo ${#ID})
+if [ $len -lt 3 ]; then
+	echo "Critical - Invalid vmid"
+	exit 2
+fi
+
 # Check for type
 # Note: Proxmox dropt openvz support in 4.0
 #KVM
 if $QM list |grep $ID > /dev/null 2>&1 ; then
  TYPE="qemu"
+else
+ echo "Unknown - vm $ID does not exist"
+ exit 3
 fi
 #OPENVZ
 if [[ -f $PVECTL ]] ; then
  if $PVECTL list |grep $ID > /dev/null 2>&1 ; then
    TYPE="openvz"
- fi
+ else
+ echo "Unknown - vm $ID does not exist"
+ exit 3
+fi
 fi
 #LXC
 if [[ -f $LXCLS ]] ; then
  if $LXCLS |grep $ID > /dev/null 2>&1 ; then
    TYPE="lxc"
+ else
+ echo "Unknown - vm $ID does not exist"
+ exit 3
  fi
 fi
 
-$PVESM list $BACKUP_STORAGE | grep "vzdump-$TYPE-$ID" > $LIST
+# Check if backup storage exists
+storageList=$($PVESM list $BACKUP_STORAGE 2>/dev/null);
+if [ $? -ne 0 ]; then
+	echo "Critical - Storage $BACKUP_STORAGE does not exist"
+	exit 2
+fi
+
+echo "$storageList" | grep "vzdump-$TYPE-$ID" > $LIST
 COUNT=$(wc -l < $LIST)
 
 if [ $COUNT -eq 0 ]; then
@@ -66,21 +89,6 @@ if [ $COUNT -eq 0 ]; then
 fi
 
 line=$(cat $LIST | tail -1)
-
-# Really, really ugly, but gets the job done. If you have a better way, please don't hesitate to contact me.
-#size=$(echo $line | tr -d "[A-Z][a-z][.][:][/][\-]" | cut -c 4- | sed 's/[^ ]* //' | tr -d "[ ]")
-#size="$(( $size / 1024 ))"
-#size="$(( $size / 1024 ))"
-#year=$(echo $line | tr -d "[A-Z][a-z][.][:][/]" | cut -c 7- | cut -d' ' -f1 | grep -oP "[0-9]{4}")
-#month=$(echo $line | tr -d "[A-Z][a-z][.][:][/][_]" | cut -d' ' -f1 | cut -c 12-)
-#month=$(echo ${month::2})
-#day=$(echo $line | tr -d "[A-Z][a-z][.][:][/][_]" |  cut -d' ' -f1 | cut -c 14-)
-#day=$(echo ${day::2})
-#hour=$(echo $line | tr -d "[A-Z][a-z][.][:][/][_]" |  cut -d' ' -f1 | cut -c 17-)
-#hour=$(echo ${hour::2})
-#minute=$(echo $line | tr -d "[A-Z][a-z][.][:][/][_]" |  cut -d' ' -f1 | cut -c 19-)
-#minute=$(echo ${minute::2})
-#second=$(echo $line | tr -d "[A-Z][a-z][.][:][/][_]" |  cut -d' ' -f1 | cut -c 21-)
 
 # local:backup/vzdump-openvz-104-2016_02_21-03_49_19.tar.lzo tar.lzo 33512905791
 # nfs-backup:backup/vzdump-openvz-103-2016_02_20-03_34_45.tar.lzo tar.lzo 1962755572
@@ -93,8 +101,6 @@ minute=${BASH_REMATCH[5]}
 second=${BASH_REMATCH[6]}
 let "size=${BASH_REMATCH[7]} / 1024 / 1024"
 #size=$(numfmt --grouping $size)
-
-##############################################################################################################
 
 date="$month/$day/$year"
 DATE_LOG=$(date +%m/%d/%y -d "$date + $MAX_OLD_DAYS day")
